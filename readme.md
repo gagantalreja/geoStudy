@@ -9,29 +9,29 @@
 
 - **Home Screen**
 
-![image](screenshots/1.png)
+![Home](/screenshots/1.png)
 
 
 - **NDVI Plot and False Color Composite of uploaded Raster Image**
 
-![image](screenshots/2.png)
+![plot](/screenshots/2.png)
 
 
 
 - **Area Cover Analysis of uploaded Raster Image**
 
-![image](screenshots/3.png)
+![table](/screenshots/3.png)
 
 
 - **Percentage Area Cover for uploaded Images**
 
-![image](screenshots/5.png)
+![plot](/screenshots/5.png)
 
 
 
 - **Graph showing effect of change in all three indices on Land Surface Temperature**
 
-![image](screenshots/4.png)
+![corr](/screenshots/4.png)
 
 
 
