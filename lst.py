@@ -4,18 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors
 import seaborn as sns
-sns.set()
-
-class MidpointNormalize(colors.Normalize):
-   
-    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
-        self.midpoint = midpoint
-        colors.Normalize.__init__(self, vmin, vmax, clip)
-
-    def __call__(self, value, clip=None):
-       
-        x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
-        return np.ma.masked_array(np.interp(value, x, y), np.isnan(value))
 
 
 normalize = lambda array: ((array - array.min())/(array.max() - array.min()))
@@ -35,26 +23,7 @@ def get_index(green, red, nir, swir):
 
 def get_LST(thermal, sat_name):
 
-    if sat_name == 7:
-        ml = 6.7087E-02
-        al = -0.06709
-        l_max = 17.040
-        l_min = 0.000
-        qcal_max = 255
-        qcal_min = 1
-        k1 = 666.09
-        k2 = 1282.71
-
-    else:
-        ml = 3.3420E-04
-        al = 0.10000
-        l_max = 22.00180
-        l_min = 0.10033
-        qcal_max = 65535
-        qcal_min = 1
-        k1 = 774.8853
-        k2 = 1321.0789
-
+    #k1, k2 qcal, ml, al values acquired from landsat data
     L_lambda = ml * thermal + al
     temp_cel = k2 / np.log(k1/L_lambda + 1) - 273.15
     return temp_cel
@@ -78,7 +47,7 @@ def show_corr(temp, l):
             print(e)
             pass
     temp = [i.mean() for i in temp]
-    print(temp, ndvi, ndwi, ndbi)
+    
     ax = plt.subplot(131)
     ax.plot(temp, ndvi, marker = 'o')
     ax.set_title('LST vs NDVI')
@@ -116,11 +85,7 @@ if __name__ == '__main__':
     temp = calc_everything(l)
     show_corr(temp, l)
     
-'''
-lsat/00/b2.tif lsat/00/b3.tif lsat/00/b4.tif lsat/00/b5.tif lsat/00/b6.tif 7 2000
-lsat/15/b3.tif lsat/15/b4.tif lsat/15/b5.tif lsat/15/b6.tif lsat/15/b10.tif 8 2015
-lsat/19/b3.tif lsat/19/b4.tif lsat/19/b5.tif lsat/19/b6.tif lsat/19/b10.tif 8 2019
-'''
+
     
 
 

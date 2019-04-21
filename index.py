@@ -2,33 +2,16 @@ import rasterio as rio
 from rasterio.plot import show
 #import rasterio.plot as plt #import show
 import matplotlib.pyplot as plt
-from matplotlib import colors
 import numpy as np
 import pandas as pd
 plt.style.use('seaborn-deep')
-
-
-class MidpointNormalize(colors.Normalize):
-   
-    def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
-        self.midpoint = midpoint
-        colors.Normalize.__init__(self, vmin, vmax, clip)
-
-    def __call__(self, value, clip=None):
-       
-        x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
-        return np.ma.masked_array(np.interp(value, x, y), np.isnan(value))
 
 
 def index(b2, b1):
 
     logor = lambda x, y: np.logical_or(x>0, y>0)
     calc = lambda x, y, ch: np.where(ch, (x-y)/(x+y), 0)
-    
-    #calculating NDVI
-    np.seterr(divide='ignore', invalid='ignore')
     ind = calc(b1, b2, logor(b2, b1))
-    print(ind.min(), ind.max())
     return ind
 
 
@@ -46,7 +29,7 @@ def plot_hist(plot_percent, dates, d):
         p = list(plot_percent[i])
         ax.bar(ind, p, bottom = bottom, width = 0.35, label = d[i])
         bottom = [bottom[i]+p[i] for i in range(len(p))]
-    ax.legend().set_draggable(True)
+    
     ax.set_xticks(ind, minor=False)
     ax.set_xticklabels(dates)
     ax.set_title('Percent Area Cover for years {} \n'.format(', '.join(dates[:-1])+' and ' + dates[-1]))
@@ -103,7 +86,6 @@ def calc_table(ind, x, y, d):
     
     area.append(round(tot_area, 3))
     perc.append(100)
-    #df = pd.DataFrame({'Area(in m2)': area, 'Percentage Area': perc})
     return (perc, area)
 
 def diff_table(ind_arr, bands, dates, d):
@@ -151,7 +133,6 @@ def diff_table(ind_arr, bands, dates, d):
         date.append(str(last[i]))
         date.append('100%')
     df_dict['Total Area'] = date
-    print(df_dict)
     dfres = pd.DataFrame(df_dict)
     
     dfres.to_excel('result.xlsx')
@@ -168,7 +149,7 @@ def calc_diff(l, ch):
         bands.append([l[i][0].read(1), l[i][1].read(1),
                           l[i][2].read(1), l[i][3].read(1), trans[0], -trans[4]])
 
-    bands = list(map(lambda x: [i.astype(float) for i in x[:4]]+[x[4], x[5]], bands))
+    
     
     if ch==1:
         ind_arr = [index(band[1], band[2]) for band in bands]
@@ -190,7 +171,7 @@ def calc_diff(l, ch):
     
     date_dict = plot_diff_util(ind_arr, bands, years, ch)
     
-    colormap = plt.cm.RdYlGn
+    
     
     while 1:
         
@@ -199,9 +180,9 @@ def calc_diff(l, ch):
         mid = ind.mean()
         minx=np.nanmin(ind)
         maxx=np.nanmax(ind)
-        norm = MidpointNormalize(vmin=minx, vmax=maxx, midpoint=mid)
+        
         ax = plt.subplot(121)
-        ax.imshow(ind, cmap=colormap, vmin=minx, vmax=maxx, norm=norm)
+        ax.imshow(ind, cmap=colormap, vmin=minx, vmax=maxx)
         ax.set_title('YEAR: {}'.format(date))
         ax1 = plt.subplot(122)
         ax1.imshow(band)
@@ -222,17 +203,4 @@ if __name__ == '__main__':
     l = sorted(l, key = lambda x:x[4])
     calc_diff(l, ch)
 
-
-'''
-lsat/15/b3.tif lsat/15/b4.tif lsat/15/b5.tif lsat/15/b6.tif 2015
-lsat/19/b3.tif lsat/19/b4.tif lsat/19/b5.tif lsat/19/b6.tif 2019
-img1/8/b2.tif img1/8/b3.tif img1/8/b4.tif img1/8/b5.tif 2008          
-img1/11/b2.tif img1/11/b3.tif img1/11/b4.tif img1/11/b5.tif 2011
-img1/12/b2.tif img1/12/b3.tif img1/12/b4.tif img1/12/b5.tif 2012
-img1/13/b2.tif img1/13/b3.tif img1/13/b4.tif img1/13/b5.tif 2013
-img1/14/b2.tif img1/14/b3.tif img1/14/b4.tif img1/14/b5.tif 2014
-img1/15/b2.tif img1/15/b3.tif img1/15/b4.tif img1/15/b5.tif 2015
-img1/16/b2.tif img1/16/b3.tif img1/16/b4.tif img1/16/b5.tif 2016
-
-'''
     
